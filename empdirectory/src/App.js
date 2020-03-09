@@ -1,26 +1,50 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import API from "./utils/API";
+import SearchForm from "./components/SearchForm";
+import SearchResults from "./components/SearchResults";
+import EmpContext from "./utils/EmpContext";
+import { Container } from "reactstrap";
+import "./App.css"
 
-function App() {
-  return (
+
+const App = () => {
+  const [empState, setEmpState] = useState({
+    employees: [],
+    searchTerm: ""
+  });
+
+  function handleClick(SearchedFor) {
+    setEmpState({ ...empState, searchTerm: SearchedFor });
+  }
+
+  useEffect(() => {
+    API.search()
+    .then(res => {
+      setEmpState({ ...empState, employees: res.data.results });
+  });
+
+  return () => {
+    console.log("return")
+  };  
+}, []);
+
+return (
+  <Container>
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="jumbotron">
+        <h1 className="title">Employee Directory</h1>
+      </div>
+      <EmpContext.Provider value={empState}>
+        <div className="searchDiv">
+          <SearchForm handleClick={handleClick} />
+        </div>
+        <div className="resultsDisplay">
+          <SearchResults />
+        </div>
+      </EmpContext.Provider>
     </div>
-  );
+  </Container>
+);
 }
 
 export default App;
